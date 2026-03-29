@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>mufeng</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="card" id="bootstrap-card" hidden>
+        <h1>mufeng setup</h1>
+        <p>Create the first local account.</p>
+        <form id="bootstrap-form">
+          <input type="text" name="username" placeholder="Username" required />
+          <input type="password" name="password" placeholder="Password" required />
+          <button type="submit">Create account</button>
+        </form>
+      </section>
+
+      <section class="card" id="login-card" hidden>
+        <h1>mufeng login</h1>
+        <p>Sign in to access the private panel.</p>
+        <form id="login-form">
+          <input type="text" name="username" placeholder="Username" required />
+          <input type="password" name="password" placeholder="Password" required />
+          <input type="text" name="device_name" placeholder="Device name (optional)" />
+          <button type="submit">Sign in</button>
+        </form>
+        <div class="hint">Device approval is required on first login.</div>
+      </section>
+
+      <section class="card" id="pending-card" hidden>
+        <h1>Waiting for approval</h1>
+        <p>This device needs approval from the PC console.</p>
+        <div class="spinner"></div>
+        <button id="retry-btn">Check again</button>
+      </section>
+
+      <section class="card" id="ready-card" hidden>
+        <h1>Access granted</h1>
+        <p>Your device is approved. Open the private panel.</p>
+        <div class="actions">
+          <a class="button" href="/app/" target="_blank" rel="noopener">Open panel</a>
+          <button id="logout-btn">Logout</button>
+        </div>
+      </section>
+
+      <section class="card" id="error-card" hidden>
+        <h1>Something went wrong</h1>
+        <p id="error-text"></p>
+        <button id="reset-btn">Back to login</button>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

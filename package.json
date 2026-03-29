@@ -1,0 +1,19 @@
+{
+  "name": "mufeng",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Phone-friendly private control panel for local Codex sessions.",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.7.2",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.19.2",
+    "http-proxy-middleware": "^3.0.0",
+    "nanoid": "^5.0.7"
+  }
+}

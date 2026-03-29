@@ -1,0 +1,140 @@
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dbPath } from './db.js';
+import {
+  createUser,
+  verifyUser,
+  createSession,
+  getSession,
+  deleteSession,
+  hasAnyUser
+} from './auth.js';
+import {
+  isTrusted,
+  upsertPending,
+  approveDevice,
+  revokeDevice,
+  listPending,
+  listTrusted
+} from './device.js';
+import { adminKey, keyPath, requireAdmin } from './admin.js';
+import { upstreamUrl, buildProxy } from './proxy.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const app = express();
+const port = Number(process.env.MUFENG_PORT || 3101);
+
+app.use(express.json());
+app.use(cookieParser());
+
+const staticDir = path.join(__dirname, '..', 'public');
+app.use('/static', express.static(staticDir));
+
+function getClientIp(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress;
+}
+
+function requireAuth(req, res, next) {
+  const token = req.cookies.mufeng_session;
+  if (!token) return res.status(401).json({ ok: false, error: 'unauthorized' });
+  const session = getSession(token);
+  if (!session) return res.status(401).json({ ok: false, error: 'unauthorized' });
+  req.session = session;
+  return next();
+}
+
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, db: dbPath, upstream: upstreamUrl });
+});
+
+app.get('/api/bootstrap/status', (req, res) => {
+  res.json({ hasUser: hasAnyUser() });
+});
+
+app.post('/api/bootstrap', (req, res) => {
+  if (hasAnyUser()) return res.status(400).json({ ok: false, error: 'already_initialized' });
+  const { username, password } = req.body || {};
+  if (!username || !password) return res.status(400).json({ ok: false, error: 'missing_fields' });
+  const user = createUser(username, password);
+  res.json({ ok: true, user: { id: user.id, username: user.username } });
+});
+
+app.post('/api/login', (req, res) => {
+  const { username, password, device_id, device_name } = req.body || {};
+  if (!username || !password || !device_id) {
+    return res.status(400).json({ ok: false, error: 'missing_fields' });
+  }
+  const user = verifyUser(username, password);
+  if (!user) return res.status(401).json({ ok: false, error: 'invalid_credentials' });
+
+  const ip = getClientIp(req);
+  if (!isTrusted(device_id)) {
+    upsertPending(device_id, device_name || 'Unknown device', ip);
+    return res.json({ ok: true, approved: false });
+  }
+
+  const token = createSession(user.id, device_id);
+  res.cookie('mufeng_session', token, {
+    httpOnly: true,
+    sameSite: 'lax'
+  });
+  res.json({ ok: true, approved: true });
+});
+
+app.get('/api/approval-status', (req, res) => {
+  const deviceId = req.query.device_id;
+  if (!deviceId) return res.status(400).json({ ok: false, error: 'missing_device_id' });
+  res.json({ ok: true, approved: isTrusted(deviceId) });
+});
+
+app.post('/api/logout', requireAuth, (req, res) => {
+  deleteSession(req.cookies.mufeng_session);
+  res.clearCookie('mufeng_session');
+  res.json({ ok: true });
+});
+
+app.get('/api/admin/status', requireAdmin, (req, res) => {
+  res.json({
+    ok: true,
+    pending_devices: listPending(),
+    trusted_devices: listTrusted(),
+    upstream: upstreamUrl,
+    admin_key_path: keyPath
+  });
+});
+
+app.post('/api/admin/approve', requireAdmin, (req, res) => {
+  const { device_id } = req.body || {};
+  if (!device_id) return res.status(400).json({ ok: false, error: 'missing_device_id' });
+  const ok = approveDevice(device_id);
+  res.json({ ok });
+});
+
+app.post('/api/admin/revoke', requireAdmin, (req, res) => {
+  const { device_id } = req.body || {};
+  if (!device_id) return res.status(400).json({ ok: false, error: 'missing_device_id' });
+  revokeDevice(device_id);
+  res.json({ ok: true });
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(staticDir, 'index.html'));
+});
+
+app.use('/app', (req, res, next) => {
+  const token = req.cookies.mufeng_session;
+  if (!token || !getSession(token)) {
+    return res.status(401).send('Unauthorized');
+  }
+  return next();
+}, buildProxy());
+
+app.listen(port, () => {
+  console.log(`mufeng server listening on http://127.0.0.1:${port}`);
+  console.log(`upstream target: ${upstreamUrl}`);
+  console.log(`admin key: ${adminKey}`);
+  console.log(`admin key path: ${keyPath}`);
+});
