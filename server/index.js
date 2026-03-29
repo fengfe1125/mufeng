@@ -25,13 +25,18 @@ import { upstreamUrl, buildProxy } from './proxy.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
+app.set('trust proxy', true);
 const port = Number(process.env.MUFENG_PORT || 3101);
 
 app.use(express.json());
 app.use(cookieParser());
 
 const staticDir = path.join(__dirname, '..', 'public');
-app.use('/static', express.static(staticDir));
+app.use('/static', express.static(staticDir, {
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-store');
+  }
+}));
 
 function getClientIp(req) {
   return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress;
@@ -79,10 +84,12 @@ app.post('/mufeng-api/login', (req, res) => {
   }
 
   const token = createSession(user.id, device_id);
+  const isHttps = req.secure || req.headers['x-forwarded-proto'] === 'https';
   res.cookie('mufeng_session', token, {
     httpOnly: true,
     sameSite: 'lax',
-    path: '/'
+    path: '/',
+    secure: isHttps
   });
   res.json({ ok: true, approved: true });
 });
@@ -124,6 +131,7 @@ app.post('/mufeng-api/admin/revoke', requireAdmin, (req, res) => {
 });
 
 app.get('/admin', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
   res.sendFile(path.join(staticDir, 'admin.html'));
 });
 
@@ -132,6 +140,7 @@ app.get('/', (req, res) => {
   if (token && getSession(token)) {
     return upstreamProxy(req, res);
   }
+  res.setHeader('Cache-Control', 'no-store');
   return res.sendFile(path.join(staticDir, 'index.html'));
 });
 
