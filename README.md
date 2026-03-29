@@ -54,6 +54,21 @@ python desktop\mufeng_control.py
 
 6. On the phone, open the same URL (or your private nginx/Tailscale address), login, and wait for approval.
 
+## Phone access via Tailscale (recommended)
+
+Make sure:
+
+- the PC is logged into Tailscale
+- the phone is logged into the same tailnet
+
+Then run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\enable-mufeng-remote.ps1
+```
+
+After that, open the private HTTPS address shown by `tailscale serve status` on the phone.
+
 ## Web admin console
 
 Open this URL in a desktop browser:
@@ -75,6 +90,7 @@ C:\Users\Asuna\mufeng\data\admin.key
 - `MUFENG_DATA_DIR` (default: `./data` in the project folder)
 - `MUFENG_DB_PATH` (default: `./data/mufeng.db`)
 - `MUFENG_ADMIN_KEY_PATH` (default: `./data/admin.key`)
+- `MUFENG_TAILSCALE` (optional path to tailscale.exe)
 - `MUFENG_NODE` (optional path to node.exe)
 - `MUFENG_NGINX` (optional path to nginx.exe)
 - `MUFENG_ASCII_ALIAS` (optional path for nginx runtime)
