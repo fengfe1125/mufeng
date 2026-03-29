@@ -54,6 +54,20 @@ python desktop\mufeng_control.py
 
 6. On the phone, open the same URL (or your private nginx/Tailscale address), login, and wait for approval.
 
+## Web admin console
+
+Open this URL in a desktop browser:
+
+```text
+http://127.0.0.1:3101/admin
+```
+
+Use the admin key from:
+
+```text
+C:\Users\Asuna\mufeng\data\admin.key
+```
+
 ## Environment variables
 
 - `MUFENG_UPSTREAM_URL` (default: `http://127.0.0.1:3001`)

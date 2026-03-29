@@ -124,6 +124,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(staticDir, 'index.html'));
 });
 
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(staticDir, 'admin.html'));
+});
+
 app.use('/app', (req, res, next) => {
   const token = req.cookies.mufeng_session;
   if (!token || !getSession(token)) {

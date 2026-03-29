@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>mufeng admin</title>
+    <link rel="stylesheet" href="/static/admin.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="card">
+        <h1>mufeng admin</h1>
+        <p>Approve or revoke devices. Admin key required.</p>
+        <div class="row">
+          <input id="admin-key" type="password" placeholder="Admin key" />
+          <button id="save-key">Save</button>
+        </div>
+        <div class="status" id="status"></div>
+      </section>
+
+      <section class="card">
+        <h2>Pending devices</h2>
+        <ul id="pending-list"></ul>
+      </section>
+
+      <section class="card">
+        <h2>Trusted devices</h2>
+        <ul id="trusted-list"></ul>
+      </section>
+    </main>
+    <script src="/static/admin.js"></script>
+  </body>
+</html>
