@@ -46,15 +46,17 @@ function requireAuth(req, res, next) {
   return next();
 }
 
-app.get('/api/health', (req, res) => {
+const upstreamProxy = buildProxy();
+
+app.get('/mufeng-api/health', (req, res) => {
   res.json({ ok: true, db: dbPath, upstream: upstreamUrl });
 });
 
-app.get('/api/bootstrap/status', (req, res) => {
+app.get('/mufeng-api/bootstrap/status', (req, res) => {
   res.json({ hasUser: hasAnyUser() });
 });
 
-app.post('/api/bootstrap', (req, res) => {
+app.post('/mufeng-api/bootstrap', (req, res) => {
   if (hasAnyUser()) return res.status(400).json({ ok: false, error: 'already_initialized' });
   const { username, password } = req.body || {};
   if (!username || !password) return res.status(400).json({ ok: false, error: 'missing_fields' });
@@ -62,7 +64,7 @@ app.post('/api/bootstrap', (req, res) => {
   res.json({ ok: true, user: { id: user.id, username: user.username } });
 });
 
-app.post('/api/login', (req, res) => {
+app.post('/mufeng-api/login', (req, res) => {
   const { username, password, device_id, device_name } = req.body || {};
   if (!username || !password || !device_id) {
     return res.status(400).json({ ok: false, error: 'missing_fields' });
@@ -85,19 +87,19 @@ app.post('/api/login', (req, res) => {
   res.json({ ok: true, approved: true });
 });
 
-app.get('/api/approval-status', (req, res) => {
+app.get('/mufeng-api/approval-status', (req, res) => {
   const deviceId = req.query.device_id;
   if (!deviceId) return res.status(400).json({ ok: false, error: 'missing_device_id' });
   res.json({ ok: true, approved: isTrusted(deviceId) });
 });
 
-app.post('/api/logout', requireAuth, (req, res) => {
+app.post('/mufeng-api/logout', requireAuth, (req, res) => {
   deleteSession(req.cookies.mufeng_session);
   res.clearCookie('mufeng_session');
   res.json({ ok: true });
 });
 
-app.get('/api/admin/status', requireAdmin, (req, res) => {
+app.get('/mufeng-api/admin/status', requireAdmin, (req, res) => {
   res.json({
     ok: true,
     pending_devices: listPending(),
@@ -107,35 +109,42 @@ app.get('/api/admin/status', requireAdmin, (req, res) => {
   });
 });
 
-app.post('/api/admin/approve', requireAdmin, (req, res) => {
+app.post('/mufeng-api/admin/approve', requireAdmin, (req, res) => {
   const { device_id } = req.body || {};
   if (!device_id) return res.status(400).json({ ok: false, error: 'missing_device_id' });
   const ok = approveDevice(device_id);
   res.json({ ok });
 });
 
-app.post('/api/admin/revoke', requireAdmin, (req, res) => {
+app.post('/mufeng-api/admin/revoke', requireAdmin, (req, res) => {
   const { device_id } = req.body || {};
   if (!device_id) return res.status(400).json({ ok: false, error: 'missing_device_id' });
   revokeDevice(device_id);
   res.json({ ok: true });
 });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(staticDir, 'index.html'));
-});
-
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(staticDir, 'admin.html'));
 });
 
-app.use('/app', (req, res, next) => {
+app.get('/', (req, res) => {
+  const token = req.cookies.mufeng_session;
+  if (token && getSession(token)) {
+    return upstreamProxy(req, res);
+  }
+  return res.sendFile(path.join(staticDir, 'index.html'));
+});
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/mufeng-api') || req.path.startsWith('/admin') || req.path.startsWith('/static')) {
+    return next();
+  }
   const token = req.cookies.mufeng_session;
   if (!token || !getSession(token)) {
     return res.status(401).send('Unauthorized');
   }
-  return next();
-}, buildProxy());
+  return upstreamProxy(req, res, next);
+});
 
 app.listen(port, () => {
   console.log(`mufeng server listening on http://127.0.0.1:${port}`);

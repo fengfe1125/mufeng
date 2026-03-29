@@ -116,7 +116,7 @@ async function fetchJson(url, opts = {}) {
 }
 
 async function checkBootstrap() {
-  const data = await fetchJson('/api/bootstrap/status');
+  const data = await fetchJson('/mufeng-api/bootstrap/status');
   if (!data.hasUser) {
     show(bootstrapCard);
   } else {
@@ -130,7 +130,7 @@ qs('#bootstrap-form').addEventListener('submit', async (e) => {
   const username = form.username.value.trim();
   const password = form.password.value.trim();
   try {
-    await fetchJson('/api/bootstrap', {
+    await fetchJson('/mufeng-api/bootstrap', {
       method: 'POST',
       body: JSON.stringify({ username, password })
     });
@@ -147,7 +147,7 @@ qs('#login-form').addEventListener('submit', async (e) => {
   const password = form.password.value.trim();
   const device_name = form.device_name.value.trim();
   try {
-    const data = await fetchJson('/api/login', {
+    const data = await fetchJson('/mufeng-api/login', {
       method: 'POST',
       body: JSON.stringify({ username, password, device_id: deviceId, device_name })
     });
@@ -163,7 +163,7 @@ qs('#login-form').addEventListener('submit', async (e) => {
 
 async function checkApproval() {
   try {
-    const data = await fetchJson(`/api/approval-status?device_id=${encodeURIComponent(deviceId)}`);
+    const data = await fetchJson(`/mufeng-api/approval-status?device_id=${encodeURIComponent(deviceId)}`);
     if (data.approved) {
       show(readyCard);
     }
@@ -176,7 +176,7 @@ qs('#retry-btn').addEventListener('click', checkApproval);
 qs('#reset-btn').addEventListener('click', () => show(loginCard));
 qs('#logout-btn').addEventListener('click', async () => {
   try {
-    await fetchJson('/api/logout', { method: 'POST' });
+    await fetchJson('/mufeng-api/logout', { method: 'POST' });
     show(loginCard);
   } catch (err) {
     showError(err.message);

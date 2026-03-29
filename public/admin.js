@@ -120,12 +120,12 @@ function renderList(el, items, actions) {
 
 async function refresh() {
   try {
-    const data = await fetchJson('/api/admin/status');
+    const data = await fetchJson('/mufeng-api/admin/status');
     renderList(pendingList, data.pending_devices || [], [
       {
         label: t('approve'),
         onClick: async (item) => {
-          await fetchJson('/api/admin/approve', {
+          await fetchJson('/mufeng-api/admin/approve', {
             method: 'POST',
             body: JSON.stringify({ device_id: item.device_id })
           });
@@ -137,7 +137,7 @@ async function refresh() {
       {
         label: t('revoke'),
         onClick: async (item) => {
-          await fetchJson('/api/admin/revoke', {
+          await fetchJson('/mufeng-api/admin/revoke', {
             method: 'POST',
             body: JSON.stringify({ device_id: item.device_id })
           });
