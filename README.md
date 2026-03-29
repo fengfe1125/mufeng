@@ -1,102 +1,134 @@
-# mufeng
+﻿# mufeng
 
-A phone-friendly private access gate for local Codex sessions.
+EN: A phone-friendly, private access gate for local Codex UI with login, device approval, and reverse proxy.
+ZH: 一个用于手机安全访问本地 Codex UI 的私有入口，包含登录、设备审批与反向代理。
 
-## What it does
+---
 
-- Provides a login + device approval gate in front of your local Codex UI.
-- Approved devices can open the upstream panel through a private URL.
-- Includes a small desktop control tool to approve/revoke devices.
+## Purpose / 项目目的
 
-## How it works
+EN:
+Mufeng allows you to access the Codex UI running on your PC from a phone securely. It adds a login gate and device approval workflow, then proxies the upstream UI after authentication.
 
-```text
-Phone browser
-   -> mufeng (login + device approval)
-   -> /app proxy to upstream Codex UI
-```
+ZH:
+Mufeng 用于让你在手机上安全访问电脑上的 Codex UI。它提供登录门禁与设备审批流程，通过认证后再反向代理上游 UI。
 
-## Requirements
+## How It Works / 原理
 
+EN:
+- Mufeng (Node/Express + SQLite) runs on `3101` and serves login/admin pages.
+- After login + device approval, it proxies requests to upstream Codex UI (`3001`).
+- Nginx (optional) fronts Mufeng on `8180` for stable access.
+- Tailscale Serve exposes `http://127.0.0.1:8180` to your tailnet.
+
+ZH:
+- Mufeng（Node/Express + SQLite）运行在 `3101`，提供登录与管理页面。
+- 登录并审批后，转发请求到上游 Codex UI（`3001`）。
+- 可选用 Nginx 在 `8180` 作为前置入口。
+- Tailscale Serve 将 `http://127.0.0.1:8180` 暴露给 tailnet。
+
+## Requirements / 环境依赖
+
+EN:
 - Node.js 22 LTS
-- Python 3.11+ (for the desktop control tool)
-- nginx for Windows (optional, for reverse proxy)
-- a working local Codex UI running on your PC
+- Python 3.11+ (desktop control tool)
+- Nginx for Windows (optional)
+- A working local Codex UI on the PC
 
-## Quick start
+ZH:
+- Node.js 22 LTS
+- Python 3.11+（桌面控制工具）
+- Windows 版 Nginx（可选）
+- 电脑本地已可运行 Codex UI
 
-1. Install dependencies:
+## Quick Start / 快速开始
 
-```powershell
+EN:
+1. Install deps
+```
 cd C:\Users\Asuna\mufeng
 npm install
 ```
-
-2. Start mufeng (default port 3101):
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\start-mufeng-stack.ps1
+2. Start mufeng (Node + nginx)
 ```
-
-3. Open in a desktop browser:
-
-```text
+$env:MUFENG_NGINX='C:\Users\Asuna\mobileCodexHelper\tmp\nginx-1.24.0\nginx.exe';
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\start-mufeng-stack.ps1
+```
+3. Open in browser
+```
 http://127.0.0.1:3101
 ```
 
-4. Create the first account, then login.
-
-5. Run the desktop control tool to approve devices:
-
-```powershell
-python desktop\mufeng_control.py
+ZH:
+1. 安装依赖
+```
+cd C:\Users\Asuna\mufeng
+npm install
+```
+2. 启动 mufeng（Node + nginx）
+```
+$env:MUFENG_NGINX='C:\Users\Asuna\mobileCodexHelper\tmp\nginx-1.24.0\nginx.exe';
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\start-mufeng-stack.ps1
+```
+3. 浏览器打开
+```
+http://127.0.0.1:3101
 ```
 
-6. On the phone, open the same URL (or your private nginx/Tailscale address), login, and wait for approval.
+## Admin / 管理
 
-## Phone access via Tailscale (recommended)
-
-Make sure:
-
-- the PC is logged into Tailscale
-- the phone is logged into the same tailnet
-
-Then run:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\enable-mufeng-remote.ps1
+EN:
+Admin page:
 ```
-
-After that, open the private HTTPS address shown by `tailscale serve status` on the phone.
-
-## Web admin console
-
-Open this URL in a desktop browser:
-
-```text
 http://127.0.0.1:3101/admin
 ```
-
-Use the admin key from:
-
-```text
+Admin key path:
+```
 C:\Users\Asuna\mufeng\data\admin.key
 ```
 
-## Environment variables
+ZH:
+管理页面：
+```
+http://127.0.0.1:3101/admin
+```
+管理员密钥路径：
+```
+C:\Users\Asuna\mufeng\data\admin.key
+```
 
-- `MUFENG_UPSTREAM_URL` (default: `http://127.0.0.1:3001`)
-- `MUFENG_PORT` (default: `3101`)
-- `MUFENG_DATA_DIR` (default: `./data` in the project folder)
-- `MUFENG_DB_PATH` (default: `./data/mufeng.db`)
-- `MUFENG_ADMIN_KEY_PATH` (default: `./data/admin.key`)
-- `MUFENG_TAILSCALE` (optional path to tailscale.exe)
-- `MUFENG_NODE` (optional path to node.exe)
-- `MUFENG_NGINX` (optional path to nginx.exe)
-- `MUFENG_ASCII_ALIAS` (optional path for nginx runtime)
+## Remote Access / 远程访问
 
-## Notes
+EN:
+If HTTPS fails due to time/NTP, use tailnet IP + HTTP:
+```
+http://100.97.203.6:8180
+```
 
-- The upstream Codex UI must already be running locally.
-- mufeng only gates access and does not replace the upstream service.
-- Device approval requires the desktop tool to access the admin key.
+ZH:
+如果 HTTPS 因时间/NTP 问题不可用，可用 tailnet IP + HTTP：
+```
+http://100.97.203.6:8180
+```
+
+## Docs / 文档
+
+EN:
+- Operations guide: `docs/OPERATIONS.md`
+- Access info (local): `docs/ACCESS_INFO.txt`
+
+ZH:
+- 运维指南：`docs/OPERATIONS.md`
+- 访问与密钥清单：`docs/ACCESS_INFO.txt`
+
+## Troubleshooting / 常见问题
+
+EN:
+- HTTPS not working: system time not synced or UDP 123 blocked → use tailnet IP + HTTP.
+- Codex login hangs then fails: request body consumed by global JSON parser → fixed in this repo.
+- Approve Codex devices 500: missing `fs` import → fixed in this repo.
+
+ZH:
+- HTTPS 无法访问：系统时间未同步或 UDP 123 被阻断 → 先用 tailnet IP + HTTP。
+- Codex 登录卡住后失败：请求体被全局 JSON 解析吃掉 → 本仓库已修复。
+- 批准 Codex 设备 500：缺少 `fs` 引入 → 本仓库已修复。
