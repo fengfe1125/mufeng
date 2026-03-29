@@ -53,10 +53,18 @@ const translations = {
     device_name: '设备名称（可选）'
   }
 };
+function generateDeviceId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  const rand = Math.random().toString(36).slice(2);
+  return `mufeng-${Date.now().toString(36)}-${rand}`;
+}
+
 const deviceId = (() => {
   const existing = localStorage.getItem(deviceIdKey);
   if (existing) return existing;
-  const generated = crypto.randomUUID();
+  const generated = generateDeviceId();
   localStorage.setItem(deviceIdKey, generated);
   return generated;
 })();
