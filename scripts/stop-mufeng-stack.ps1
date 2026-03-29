@@ -9,6 +9,7 @@ if ($nginxCmd -and (Test-Path $nginxRoot)) {
 
 $port = if ($env:MUFENG_PORT) { [int]$env:MUFENG_PORT } else { 3101 }
 $procIds = (Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique)
-foreach ($pid in $procIds) {
-  try { Stop-Process -Id $pid -Force } catch {}
+foreach ($procId in $procIds) {
+  if (-not $procId -or $procId -eq 0) { continue }
+  try { Stop-Process -Id $procId -Force } catch {}
 }
