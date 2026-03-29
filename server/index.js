@@ -1,5 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dbPath } from './db.js';
@@ -29,8 +30,8 @@ const app = express();
 app.set('trust proxy', true);
 const port = Number(process.env.MUFENG_PORT || 3101);
 
-app.use(express.json());
 app.use(cookieParser());
+app.use('/mufeng-api', express.json());
 
 const staticDir = path.join(__dirname, '..', 'public');
 app.use('/static', express.static(staticDir, {

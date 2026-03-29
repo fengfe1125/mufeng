@@ -1,0 +1,25 @@
+﻿MUFENG / CODEX ACCESS INFO
+
+Websites / URLs
+- Mufeng (local): http://127.0.0.1:3101
+- Mufeng (nginx): http://127.0.0.1:8180
+- Mufeng (Tailscale IP): http://100.97.203.6:8180
+- Mufeng admin: http://127.0.0.1:3101/admin
+- Codex UI (upstream): http://127.0.0.1:3001
+- Tailscale HTTPS: https://feng.tail49d4d5.ts.net
+
+Accounts / Passwords
+- Mufeng login: root / mufeng123
+- Codex UI login: root / codex1234
+
+Admin Key
+- mufeng admin key: d37391b49b1198bd52f7482bffbd6925c887a5fb4909c4c86b5d657bea84ea03
+- key file: C:\Users\Asuna\mufeng\data\admin.key
+
+Scripts
+- Approve Codex devices:
+  C:\Users\Asuna\mobileCodexHelper\scripts\approve-codex-devices.ps1
+
+Notes
+- If HTTPS fails, use Tailscale IP + HTTP: http://100.97.203.6:8180
+- Tailscale Serve status (admin): "C:\Program Files\Tailscale\tailscale.exe" serve status
