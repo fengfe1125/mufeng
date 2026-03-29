@@ -4,6 +4,7 @@ const trustedList = document.getElementById('trusted-list');
 const keyInput = document.getElementById('admin-key');
 const saveKeyBtn = document.getElementById('save-key');
 const langBtn = document.getElementById('lang-btn');
+const approveCodexBtn = document.getElementById('approve-codex-btn');
 
 const keyStorage = 'mufeng_admin_key';
 const langKey = 'mufeng_lang';
@@ -18,7 +19,9 @@ const translations = {
     none: 'None',
     approve: 'Approve',
     revoke: 'Revoke',
-    connected: 'Connected'
+    connected: 'Connected',
+    approve_codex_btn: 'Approve Codex Devices',
+    approve_codex_ok: 'Codex devices approved.'
   },
   zh: {
     admin_title: 'mufeng 管理',
@@ -30,7 +33,9 @@ const translations = {
     none: '暂无',
     approve: '批准',
     revoke: '撤销',
-    connected: '已连接'
+    connected: '已连接',
+    approve_codex_btn: '批准 Codex 设备',
+    approve_codex_ok: 'Codex 设备已批准'
   }
 };
 
@@ -155,6 +160,17 @@ saveKeyBtn.addEventListener('click', () => {
   setKey(keyInput.value.trim());
   refresh();
 });
+
+if (approveCodexBtn) {
+  approveCodexBtn.addEventListener('click', async () => {
+    try {
+      await fetchJson('/mufeng-api/admin/approve-codex-devices', { method: 'POST' });
+      setStatus(t('approve_codex_ok'));
+    } catch (err) {
+      setStatus(err.message, false);
+    }
+  });
+}
 
 keyInput.value = getKey();
 applyLang();

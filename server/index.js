@@ -21,6 +21,7 @@ import {
 } from './device.js';
 import { adminKey, keyPath, requireAdmin } from './admin.js';
 import { upstreamUrl, buildProxy } from './proxy.js';
+import { spawnSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -113,6 +114,46 @@ app.get('/mufeng-api/admin/status', requireAdmin, (req, res) => {
     trusted_devices: listTrusted(),
     upstream: upstreamUrl,
     admin_key_path: keyPath
+  });
+});
+
+app.post('/mufeng-api/admin/approve-codex-devices', requireAdmin, (req, res) => {
+  const configured = process.env.MUFENG_CODEX_APPROVE_SCRIPT;
+  const defaultPath = path.resolve(process.cwd(), '..', 'mobileCodexHelper', 'scripts', 'approve-codex-devices.ps1');
+  const scriptPath = configured ? path.resolve(configured) : defaultPath;
+
+  if (!fs.existsSync(scriptPath)) {
+    return res.status(404).json({ ok: false, error: 'script_not_found', script: scriptPath });
+  }
+
+  const result = spawnSync('powershell', [
+    '-NoProfile',
+    '-ExecutionPolicy',
+    'Bypass',
+    '-File',
+    scriptPath,
+  ], { encoding: 'utf-8' });
+
+  if (result.error) {
+    return res.status(500).json({ ok: false, error: result.error.message, script: scriptPath });
+  }
+
+  if (result.status !== 0) {
+    return res.status(500).json({
+      ok: false,
+      error: 'script_failed',
+      code: result.status,
+      stdout: result.stdout,
+      stderr: result.stderr,
+      script: scriptPath,
+    });
+  }
+
+  return res.json({
+    ok: true,
+    stdout: result.stdout,
+    stderr: result.stderr,
+    script: scriptPath,
   });
 });
 
