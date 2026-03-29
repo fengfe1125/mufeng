@@ -79,7 +79,8 @@ app.post('/api/login', (req, res) => {
   const token = createSession(user.id, device_id);
   res.cookie('mufeng_session', token, {
     httpOnly: true,
-    sameSite: 'lax'
+    sameSite: 'lax',
+    path: '/'
   });
   res.json({ ok: true, approved: true });
 });
