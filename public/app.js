@@ -38,12 +38,12 @@ const translations = {
     login_title: 'mufeng 登录',
     login_desc: '登录以访问私有面板。',
     login_btn: '登录',
-    login_hint: '首次登录需要电脑端审批。',
+    login_hint: '首次登录需要在电脑端审批设备。',
     pending_title: '等待审批',
-    pending_desc: '该设备需要电脑端控制台批准。',
+    pending_desc: '这台设备需要在电脑端控制台批准。',
     pending_btn: '重新检查',
     ready_title: '已通过',
-    ready_desc: '设备已获批准，现在可打开面板。',
+    ready_desc: '设备已获批准，现在可以打开私有面板。',
     ready_open: '打开面板',
     ready_logout: '退出登录',
     error_title: '发生错误',
@@ -53,6 +53,7 @@ const translations = {
     device_name: '设备名称（可选）'
   }
 };
+
 function generateDeviceId() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();

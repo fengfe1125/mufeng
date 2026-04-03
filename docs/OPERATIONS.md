@@ -113,9 +113,9 @@ EN:
 - Cause: Request body got consumed by global `express.json()` in Mufeng, deviceId missing.
 - Fix: JSON parser only on `/mufeng-api` (already fixed in this repo).
 
-3) **Approve Codex Devices returns HTTP 500**
-- Cause: `fs` not imported in `mufeng/server/index.js`.
-- Fix: Import `fs` (already fixed in this repo).
+3) **Approve Codex Devices returns HTTP 404**
+- Cause: Approval script path does not exist for the current checkout.
+- Fix: Set `MUFENG_CODEX_APPROVE_SCRIPT` to the PowerShell script path, or keep the default repo layout next to `mobileCodexHelper`.
 
 4) **Login loop / Unauthorized**
 - Cause: Cookie path or proxy auth misconfig.
@@ -130,9 +130,9 @@ ZH:
 - 原因：Mufeng 全局 `express.json()` 把请求体吃掉，导致 deviceId 丢失。
 - 处理：仅在 `/mufeng-api` 上解析 JSON（本仓库已修复）。
 
-3) **批准 Codex 设备返回 500**
-- 原因：`mufeng/server/index.js` 未引入 `fs`。
-- 处理：引入 `fs`（本仓库已修复）。
+3) **批准 Codex 设备返回 404**
+- 原因：当前目录下找不到审批脚本路径。
+- 处理：设置 `MUFENG_CODEX_APPROVE_SCRIPT` 指向 PowerShell 脚本，或保持与 `mobileCodexHelper` 相邻的默认仓库布局。
 
 4) **登录循环 / Unauthorized**
 - 原因：Cookie path 或代理鉴权配置问题。

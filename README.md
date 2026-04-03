@@ -126,9 +126,9 @@ ZH:
 EN:
 - HTTPS not working: system time not synced or UDP 123 blocked → use tailnet IP + HTTP.
 - Codex login hangs then fails: request body consumed by global JSON parser → fixed in this repo.
-- Approve Codex devices 500: missing `fs` import → fixed in this repo.
+- Approve Codex devices returns 404: approval script path not found → set `MUFENG_CODEX_APPROVE_SCRIPT` or keep the default repo layout.
 
 ZH:
 - HTTPS 无法访问：系统时间未同步或 UDP 123 被阻断 → 先用 tailnet IP + HTTP。
 - Codex 登录卡住后失败：请求体被全局 JSON 解析吃掉 → 本仓库已修复。
-- 批准 Codex 设备 500：缺少 `fs` 引入 → 本仓库已修复。
+- 批准 Codex 设备返回 404：审批脚本路径不存在 → 设置 `MUFENG_CODEX_APPROVE_SCRIPT` 或保持默认仓库目录结构。

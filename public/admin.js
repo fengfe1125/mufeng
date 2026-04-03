@@ -25,7 +25,7 @@ const translations = {
   },
   zh: {
     admin_title: 'mufeng 管理',
-    admin_desc: '审批或撤销设备，需要管理员密钥。',
+    admin_desc: '批准或撤销设备，需填写管理员密钥。',
     save_btn: '保存',
     pending_title: '待审批设备',
     trusted_title: '已信任设备',

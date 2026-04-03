@@ -6,7 +6,8 @@
   "description": "Phone-friendly private control panel for local Codex sessions.",
   "scripts": {
     "start": "node server/index.js",
-    "dev": "node server/index.js"
+    "dev": "node server/index.js",
+    "test": "node --test"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

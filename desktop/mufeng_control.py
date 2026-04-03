@@ -11,6 +11,7 @@ from pathlib import Path
 APP_TITLE = "mufeng control"
 DEFAULT_URL = "http://127.0.0.1:3101"
 REFRESH_SECONDS = 5
+ADMIN_API_BASE = "/mufeng-api/admin"
 
 
 def get_admin_key_path() -> Path:
@@ -83,7 +84,7 @@ class MufengControl:
 
     def refresh_once(self):
         try:
-            data = http_json("GET", f"{self.server_url}/api/admin/status", None, self.admin_key)
+            data = http_json("GET", f"{self.server_url}{ADMIN_API_BASE}/status", None, self.admin_key)
             pending = data.get("pending_devices", [])
             trusted = data.get("trusted_devices", [])
             self.pending_devices = pending
@@ -108,7 +109,7 @@ class MufengControl:
             messagebox.showinfo(APP_TITLE, "Select a pending device first.")
             return
         try:
-            http_json("POST", f"{self.server_url}/api/admin/approve", {"device_id": device_id}, self.admin_key)
+            http_json("POST", f"{self.server_url}{ADMIN_API_BASE}/approve", {"device_id": device_id}, self.admin_key)
             self.refresh_once()
         except Exception as exc:
             messagebox.showerror(APP_TITLE, str(exc))
@@ -119,7 +120,7 @@ class MufengControl:
             messagebox.showinfo(APP_TITLE, "Select a pending device first.")
             return
         try:
-            http_json("POST", f"{self.server_url}/api/admin/revoke", {"device_id": device_id}, self.admin_key)
+            http_json("POST", f"{self.server_url}{ADMIN_API_BASE}/revoke", {"device_id": device_id}, self.admin_key)
             self.refresh_once()
         except Exception as exc:
             messagebox.showerror(APP_TITLE, str(exc))
